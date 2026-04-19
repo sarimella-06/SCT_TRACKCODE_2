@@ -1,20 +1,238 @@
-# Install dependencies as needed:
-# pip install kagglehub[pandas-datasets]
-import kagglehub
-from kagglehub import KaggleDatasetAdapter
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 
-# Set the path to the file you'd like to load
-file_path = ""
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
 
-# Load the latest version
-df = kagglehub.load_dataset(
-  KaggleDatasetAdapter.PANDAS,
-  "miadul/house-price-prediction-dataset",
-  file_path,
-  # Provide any additional arguments like 
-  # sql_query or pandas_kwargs. See the 
-  # documenation for more information:
-  # https://github.com/Kaggle/kagglehub/blob/main/README.md#kaggledatasetadapterpandas
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+import pandas as pd
+kaggle_dataset = 'tusharpaul2001/house-price-prediction'
+
+# Read the Kaggle dataset into a pandas DataFrame  
+df = pd.read_csv(f'/kaggle/input/house-price-prediction/Bangalore.csv')
+
+# Display the first few rows of the DataFrame
+print(df.head())
+df.describe()
+df.shape
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import make_pipeline
+from ipywidgets import interact, Dropdown
+from sklearn.linear_model import Lasso
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+target = "Price"
+y_train = df[target]
+
+shape = df.shape
+print(shape)
+processed_data = df
+# Define the features
+features = ["Area", "No. of Bedrooms","Resale", "MaintenanceStaff", "Gymnasium", "SwimmingPool", "LandscapedGardens",
+            "JoggingTrack", "RainWaterHarvesting", "IndoorGames", "ShoppingMall", "Intercom",
+            "SportsFacility", "ATM", "ClubHouse", "School", "24X7Security", "PowerBackup", "CarParking",
+            "StaffQuarter", "Cafeteria", "MultipurposeRoom", "Hospital", "WashingMachine", "Gasconnection",
+            "AC", "Wifi", "Children'splayarea", "LiftAvailable", "BED", "VaastuCompliant", "Microwave",
+            "GolfCourse", "TV", "DiningTable", "Sofa", "Wardrobe"]
+X_train = processed_data[features]
+columns_to_impute = ["Area", "No. of Bedrooms", "Resale", "MaintenanceStaff", "Gymnasium", "SwimmingPool", "LandscapedGardens",
+                     "JoggingTrack", "RainWaterHarvesting", "IndoorGames", "ShoppingMall", "Intercom",
+                     "SportsFacility", "ATM", "ClubHouse", "School", "24X7Security", "PowerBackup", "CarParking",
+                     "StaffQuarter", "Cafeteria", "MultipurposeRoom", "Hospital", "WashingMachine", "Gasconnection",
+                     "AC", "Wifi", "Children'splayarea", "LiftAvailable", "BED", "VaastuCompliant", "Microwave",
+                     "GolfCourse", "TV", "DiningTable", "Sofa", "Wardrobe"]
+
+for column in columns_to_impute:
+    X_train.loc[X_train[column] == 9, column] = np.nan
+
+imputer = SimpleImputer(strategy="most_frequent")
+X_train_imputed = imputer.fit_transform(X_train)
+
+# Create a dictionary of models
+models = {
+    "Linear Regression": LinearRegression(),
+    "Ridge Regression": Ridge(),
+"Decision Tree": DecisionTreeRegressor(),
+    "Random Forest": RandomForestRegressor(),
+    "Gradient Boosting": GradientBoostingRegressor()
+}
+
+# Train and evaluate models
+for model_name, model in models.items():
+    print(f"Training {model_name}...")
+    model.fit(X_train_imputed, y_train)
+    y_pred = model.predict(X_train_imputed)
+    mae = mean_absolute_error(y_train, y_pred)
+    mse = mean_squared_error(y_train, y_pred)
+    rmse = np.sqrt(mse)
+    print(f"MAE for {model_name}: {mae:.2f}")
+    print(f"MSE for {model_name}: {mse:.2f}")
+    print(f"RMSE for {model_name}: {rmse:.2f}")
+    print("-" * 30)
+def make_prediction(model_name, area, bedrooms, Resale, maintenance, gymnasium, SwimmingPool, LandscapedGardens, jogging_track,
+                    rainwater_harvesting, indoor_games, shopping_mall, intercom, sports_facility, atm,
+                    club_house, school, security, power_backup, car_parking, staff_quarter, cafeteria,
+                    multipurpose_room, hospital, washing_machine, gas_connection, ac, wifi, play_area,
+                    lift_available, bed, vaastu_compliant, microwave, golf_course, tv, dining_table, sofa,
+                    wardrobe):
+
+    model = models[model_name]
+
+    data = {
+        "Area": area,
+        "No. of Bedrooms": bedrooms,
+        "Resale": Resale,
+        "MaintenanceStaff": maintenance
+"Gymnasium": gymnasium,
+        "SwimmingPool": SwimmingPool,
+        "LandscapedGardens": LandscapedGardens,
+        "JoggingTrack": jogging_track,
+        "RainWaterHarvesting": rainwater_harvesting,
+        "IndoorGames": indoor_games,
+        "ShoppingMall": shopping_mall,
+        "Intercom": intercom,
+        "SportsFacility": sports_facility,
+        "ATM": atm,
+        "ClubHouse": club_house,
+        "School": school,
+        "24X7Security": security,
+        "PowerBackup": power_backup,
+        "CarParking": car_parking,
+        "StaffQuarter": staff_quarter,
+        "Cafeteria": cafeteria,
+        "MultipurposeRoom": multipurpose_room,
+"Hospital": hospital,
+        "WashingMachine": washing_machine,
+        "Gasconnection": gas_connection,
+        "AC": ac,
+        "Wifi": wifi,
+        "C
+    }hildren'splayarea": play_area,
+        "LiftAvailable": lift_available,
+        "BED": bed,
+        "VaastuCompliant": vaastu_compliant,
+        "Microwave": microwave,
+        "GolfCourse": golf_course,
+        "TV": tv,
+        "DiningTable": dining_table,
+        "Sofa": sofa,
+        "Wardrobe": wardrobe,
+
+    df = pd.DataFrame(data, index=[0])
+for column in df.columns:
+        df[column] = df[column].replace(9, np.nan)
+    df_imputed = imputer.transform(df)
+    prediction = model.predict(df_imputed)[0]
+    return f"Predicted apartment price: ${prediction:.2f}"
+from ipywidgets import interact, IntText, Dropdown
+
+area_input = IntText(value=X_train["Area"].mean())
+bedrooms_input = IntText(value=X_train["No. of Bedrooms"].mean())
+Resale_input = IntText(value=0)
+maintenance_input = IntText(value=0)
+gymnasium_input = IntText(value=0)
+SwimmingPool_input = IntText(value=0)
+maintenance_input = IntText(value=0)
+gymnasium_input = IntText(value=0)
+LandscapedGardens_input = IntText(value=0)
+jogging_track_input = IntText(value=0)
+rainwater_harvesting_input = IntText(value=0)
+indoor_games_input = IntText(value=0)
+shopping_mall_input = IntText(value=0)
+intercom_input = IntText(value=0)
+sports_facility_input = IntText(value=0)
+atm_input = IntText(value=0)
+club_house_input = IntText(value=0)
+school_input = IntText(value=0)
+security_input = IntText(value=0)
+power_backup_input = IntText(value=0)
+car_parking_input = IntText(value=0)
+staff_quarter_input = IntText(value=0)
+cafeteria_input = IntText(value=0)
+multipurpose_room_input = IntText(value=0)
+hospital_input = IntText(value=0)
+washing_machine_input = IntText(value=0)
+gas_connection_input = IntText(value=0)
+ac_input = IntText(value=0)
+wifi_input = IntText(value=0)
+play_area_input = IntText(value=0)
+lift_available_input = IntText(value=0)
+bed_input = IntText(value=0)
+vaastu_compliant_input = IntText(value=0)
+microwave_input = IntText(value=0)
+golf_course_input = IntText(value=0)
+tv_input = IntText(value=0)
+dining_table_input = IntText(value=0)
+sofa_input = IntText(value=0)
+wardrobe_input = IntText(value=0)
+
+# Define the dropdown for model selection
+model_dropdown = Dropdown(options=list(models.keys()))
+
+# Creating input boxes
+
+@interact(
+    area=area_input,
+    bedrooms=bedrooms_input,
+    Resale = Resale_input,
+    maintenance=maintenance_input,
+    gymnasium=gymnasium_input,
+    SwimmingPool=SwimmingPool_input,
+    LandscapedGardens=LandscapedGardens_input,
+    jogging_track=jogging_track_input,
+    rainwater_harvesting=rainwater_harvesting_input,
+    indoor_games=indoor_games_input,
+    shopping_mall=shopping_mall_input,
+    intercom=intercom_input,
+    sports_facility=sports_facility_input,
+    atm=atm_input,
+    club_house=club_house_input,
+school=school_input,
+    security=security_input,
+    power_backup=power_backup_input,
+    car_parking=car_parking_input,
+    staff_quarter=staff_quarter_input,
+    cafeteria=cafeteria_input,
+    multipurpose_room=multipurpose_room_input,
+    hospital=hospital_input,
+    washing_machine=washing_machine_input,
+    gas_connection=gas_connection_input,
+    ac=ac_input,
+    wifi=wifi_input,
+    play_area=play_area_input,
+    lift_available=lift_available_input,
+    bed=bed_input,
+    vaastu_compliant=vaastu_compliant_input,
+    microwave=microwave_input,
+    golf_course=golf_course_input,
+    tv=tv_input,
+    dining_table=dining_table_input,
+    sofa=sofa_input,
+    wardrobe=wardrobe_input,
+    model=model_dropdown
+
 )
+def interactive_prediction(area, bedrooms, Resale, maintenance, gymnasium, SwimmingPool, LandscapedGardens,
+                    jogging_track, rainwater_harvesting, indoor_games, shopping_mall, intercom,
+                    sports_facility, atm, club_house, school, security, power_backup, car_parking,
+                    staff_quarter, cafeteria, multipurpose_room, hospital, washing_machine,
+                    gas_connection, ac, wifi, play_area, lift_available, bed, vaastu_compliant,
+                    microwave, golf_course, tv, dining_table, sofa, wardrobe, model):
 
-print("First 5 records:", df.head())
+    prediction = make_prediction(model, area, bedrooms, Resale, maintenance, gymnasium, SwimmingPool, LandscapedGardens, jogging_track,
+                                 rainwater_harvesting, indoor_games, shopping_mall, intercom, sports_facility, atm,
+                                 club_house, school, security, power_backup, car_parking, staff_quarter, cafeteria,
+                                 multipurpose_room, hospital, washing_machine, gas_connection, ac, wifi, play_area,
+                                 lift_available, bed, vaastu_compliant, microwave, golf_course, tv, dining_table, sofa, wardrobe)
+    return prediction
+
+
