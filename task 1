@@ -1,0 +1,54 @@
+# House Price Prediction using Linear Regression
+
+# Step 1: Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+
+# Step 2: Load dataset
+# Example dataset (you can replace with your own CSV)
+# Dataset should have features like: area, bedrooms, bathrooms, price
+data = pd.read_csv("house_data.csv")
+
+# Show first 5 rows
+print(data.head())
+
+# Step 3: Data preprocessing
+# Check for missing values
+print(data.isnull().sum())
+
+# Fill missing values if any
+data = data.fillna(data.mean(numeric_only=True))
+
+# Step 4: Define features (X) and target (y)
+X = data[['area', 'bedrooms', 'bathrooms']]
+y = data['price']
+
+# Step 5: Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 6: Train model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Step 7: Predictions
+y_pred = model.predict(X_test)
+
+# Step 8: Evaluation
+print("Mean Absolute Error:", metrics.mean_absolute_error(y_test, y_pred))
+print("Mean Squared Error:", metrics.mean_squared_error(y_test, y_pred))
+print("Root Mean Squared Error:", np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+
+# Step 9: Compare actual vs predicted
+comparison = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+print(comparison.head())
+
+# Step 10: Predict new house price
+new_house = [[2000, 3, 2]]  # area, bedrooms, bathrooms
+predicted_price = model.predict(new_house)
+print("Predicted Price:", predicted_price[0])
